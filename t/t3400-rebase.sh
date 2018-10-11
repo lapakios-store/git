@@ -59,6 +59,14 @@ test_expect_success 'rebase against master' '
 	git rebase master
 '
 
+test_expect_success 'rebase sets ORIG_HEAD to pre-rebase state' '
+	git checkout -b orig-head topic &&
+	pre="$(git rev-parse --verify HEAD)" &&
+	git rebase master &&
+	test_cmp_rev "$pre" ORIG_HEAD &&
+	! test_cmp_rev "$pre" HEAD
+'
+
 test_expect_success 'rebase, with <onto> and <upstream> specified as :/quuxery' '
 	test_when_finished "git branch -D torebase" &&
 	git checkout -b torebase my-topic-branch^ &&
@@ -277,7 +285,7 @@ EOF
 	test_cmp From_.msg out
 '
 
-test_expect_success 'rebase--am.sh and --show-current-patch' '
+test_expect_success 'rebase --am and --show-current-patch' '
 	test_create_repo conflict-apply &&
 	(
 		cd conflict-apply &&
